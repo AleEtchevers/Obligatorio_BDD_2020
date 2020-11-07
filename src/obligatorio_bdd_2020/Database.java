@@ -403,6 +403,7 @@ public class Database {
 
         if statement_exists.executeUpdate(person_exists_query) {
             // eliminar de la tabla Persona
+            //verificar si la persona existe
             statement_deletion.executeUpdate(deletion_query);
             // eliminar de la tabla MenuRol
             elementosTabla = getElementosTabla("Persona");
@@ -417,14 +418,18 @@ public class Database {
     }
 
     //Hacer un get de elementos en una tabla X
-    public ResultSet getElementosTabla(String nombreTabla){
+    public String[] getElementosTabla(String nombreTabla){
          try(Connection connection = DriverManager.getConnection("jdbc:postgresql://192.168.56.102:5432/tests", "postgres", "bruno123")){
 
             Statement statement = connection.createStatement();
-            String query_getValores = "SELECT count(*) FROM " + nombreTabla);
+            String query_getValores = "SELECT * FROM " + nombreTabla);
+            //  string con los parametros de la tabla
+            String[] elementos; // lo sigo desp
+
+            
             ResultSet resultado = statement.executeQuery(query_getValores);
             
-            return resultado;
+            return elementos;
 
         } catch (SQLException exc) {
             Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, exc);
@@ -432,8 +437,39 @@ public class Database {
         return null;
     }
     
+    // buscar persona en tabla personas
+
+    public ResultSet buscarPersona(int cedula){
+        try(Connection connection = DriverManager.getConnection("jdbc:postgresql://192.168.56.102:5432/tests", "postgres", "bruno123")){
+            Statement statement = connection.createStatement(ResultSet.CONCUR_UPDATABLE, ResultSet.TYPE_FORWARD_ONLY);
+            String query_persona = "SELECT * FROM Persona WHERE cedula = " + cedula);
+            ResualtSet resultado = statement.executeQuery(guery_persona);
+            return resultado;
+    
+        } catch (SQLException exc) {
+        Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, exc);
+        }
+    return null;
+    }
+
+    //Verificar si la persona existe
+
+    public boolean personaExiste(String cedula){
+        ResultSet persona = buscarPersona(cedula);
+        try {
+            return person.first();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return false;
+        
+    }
 }
     
+    
+}
+    
+}
     
 }
     
