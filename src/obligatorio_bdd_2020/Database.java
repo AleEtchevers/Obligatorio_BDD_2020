@@ -488,4 +488,39 @@ public class Database {
             
         }         
     }
+
+    public String maxGenericSQL(String atributo, String tabla) throws SQLException{
+        String maximo="0";
+        String consultaSQL;
+        ResultSet resultado;
+        ResultSetMetaData rsmd;
+        
+        int rows = 0;
+        int columnsNumber;
+          Statement sentencia;
+         try {
+            
+            Class.forName("org.postgresql.Driver");
+            Connection c = DriverManager.getConnection(url,user,password);
+            sentencia = c.createStatement();
+          
+            consultaSQL="SELECT "+atributo+" FROM postgres.datosusuarios."+tabla+" WHERE "+atributo+" = ( SELECT MAX("+atributo+") FROM postgres.datosusuarios."+tabla+");";
+            resultado=sentencia.executeQuery(consultaSQL);
+            rsmd = resultado.getMetaData();
+            columnsNumber=rsmd.getColumnCount();
+
+
+            if(resultado.next()){
+                maximo=resultado.getString(1);
+            }
+
+            resultado.close();
+         } catch (Exception e) {
+             System.out.println(e);
+            return null;
+         }
+         resultado.close();
+         sentencia.close();
+         return maximo;
+    }
 }
