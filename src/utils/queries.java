@@ -19,6 +19,8 @@ import java.util.HashSet;
  */
 public class queries {
     
+    private String FAILURE = "Connection failure."
+
     /**
      * Dada el nombre de una aplicacion, devuelve el ID unico.
      * Sino, devuelve -1
@@ -35,7 +37,7 @@ public class queries {
                 return rs.getInt("idapp");
             }            
         }catch (SQLException e){
-            System.out.println("Connection failure.");           
+            System.out.println(FAILURE);           
         } 
         return -1;
     }
@@ -56,7 +58,7 @@ public class queries {
                 return rs.getInt("idmenu");
             }            
         }catch (SQLException e){
-            System.out.println("Connection failure.");           
+            System.out.println(FAILURE);           
         } 
         return -1;
     }
@@ -77,7 +79,7 @@ public class queries {
                 return rs.getString("descripcionmenu");
             }            
         }catch (SQLException e){
-            System.out.println("Connection failure.");           
+            System.out.println(FAILURE);           
         } 
         return "N/A";  
    }
@@ -85,22 +87,23 @@ public class queries {
     /**
      * Dado el ID unico de un Rol, devuelve el nombre del mismo.
      * Ej: "Admintrador" o "Editor"
-     * @param idrol
+     * @param idRol
      * @return 
      */
-    public static String getNombreRol(int idrol){
-        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://192.168.56.102:5432/tests", "postgres", "bruno123")){
+    public static String getNombreRol(int idRol){
+        // Connection connection = DriverManager.getConnection();
+        if !(connection.isClosed()) {
             System.out.println("Se conecto para buscar la Descripcion del Menu");
             String query_desc = "SELECT nombrerol FROM rol WHERE idrol=?";
             PreparedStatement statement = connection.prepareStatement(query_desc);
-            statement.setInt(1,idrol);
+            statement.setInt(1, idrol);
             ResultSet rs = statement.executeQuery();       
             while(rs.next()){
                 return rs.getString("nombrerol");
-            }            
-        }catch (SQLException e){
-            System.out.println("Connection failure.");           
-        }
+            }
+        } else {
+            failure();
+        }            
         return "N/A";
    }
     /**
@@ -113,13 +116,13 @@ public class queries {
             System.out.println("Se conecto para buscar la Descripcion del Menu");
             String query_desc = "SELECT idrol FROM rol WHERE nombrerol=?";
             PreparedStatement statement = connection.prepareStatement(query_desc);
-            statement.setString(1,nombreRol);
+            statement.setString(1, nombreRol);
             ResultSet rs = statement.executeQuery();       
             while(rs.next()){
                 return rs.getInt("idrol");
             }            
         }catch (SQLException e){
-            System.out.println("Connection failure.");           
+            failure();          
         }
         return -1;        
     }
@@ -132,7 +135,7 @@ public class queries {
      * @param idrol
      * @return 
      */
-    public static String[] getPermisosPersona(String alias,int idmenu, int idrol){
+    public static String[] getPermisosPersona(String alias,int idMenu, int idRol){
         try (Connection connection = DriverManager.getConnection("jdbc:postgresql://192.168.56.102:5432/tests", "postgres", "bruno123")){
             String[] permisos = new String[5];
             for (int i = 0; i < 5; i++) {
@@ -142,8 +145,8 @@ public class queries {
             String query_desc = "SELECT rol.* FROM rol rol WHERE (rol.idrol in (SELECT x.idrol FROM menurol x WHERE (x.user = ?) AND (x.idmenu = ?) AND (x.idrol = ?)))";
             PreparedStatement statement = connection.prepareStatement(query_desc);
             statement.setString(1,alias);
-            statement.setInt(2,idmenu);
-            statement.setInt(3,idrol);
+            statement.setInt(2,idMenu);
+            statement.setInt(3,idRol);
             ResultSet rs = statement.executeQuery();       
             while(rs.next()){
                 if(rs.getBoolean("ver")){
@@ -165,7 +168,7 @@ public class queries {
             return permisos;
             
         }catch (SQLException e){
-            System.out.println("Connection failure.");           
+            failure();           
         }
         return null;       
     }
@@ -173,11 +176,11 @@ public class queries {
     /**
      * 
      */
-    public static HashSet<String> getAliases(int idmenu){
+    public static HashSet<String> getAliases(int idMenu){
         try (Connection connection = DriverManager.getConnection("jdbc:postgresql://192.168.56.102:5432/tests", "postgres", "bruno123")){
             String query_desc = "SELECT x.user FROM menurol x WHERE x.idrol = ?";
             PreparedStatement statement = connection.prepareStatement(query_desc);
-            statement.setInt(1,idmenu);
+            statement.setInt(1, idMenu);
             ResultSet rs = statement.executeQuery();  
             HashSet<String> c = new HashSet();
             while(rs.next()){
@@ -187,9 +190,13 @@ public class queries {
             }  
             return c;
         }catch (SQLException e){
-            System.out.println("Connection failure.");           
+            failure()        
         }
         return new HashSet<String>();         
+    }
+
+    public static void failure() {
+        System.out.println(FAILURE); 
     }
     
 }
