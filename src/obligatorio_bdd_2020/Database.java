@@ -64,27 +64,27 @@ public class Database {
     
      // METODOS 
 
-    // actualizar auditoria
-     public void actualizarAuditoria(ResultSet resultado, String nombreTabla, int evento){
+    // Llevar un registro de los eventos que suceden
+     public void actualizarAuditoria(ResultSet resultado, String nombreTabla, int idApp, String usuario_modificado, int evento){
          try{
              if(resultado.next()){
-                String auditoria_query = "INSERT INTO auditoria (idApp,idEvento,Administrador,Alias,idUsuario,Evento,Rol,Fecha) VALUES(?,?,?,?,?,?,?,?);";
+                String auditoria_query = "INSERT INTO auditoria (id_App,id_Evento,Usuario_Actual,Usuario_Modificado,Rol,Fecha) VALUES(?,?,?,?,?,?);";
                 Date date = new Date(Calendar.getInstance().getTime().getTime());
                 PreparedStatement adutoria_statement = connection.prepareStatement(adutoria_query);
 
-                adutoria_statement.setInt(1, Integer.parseInt(data[0]));
-                adutoria_statement.setInt(2, Integer.parseInt(data[1]));
-                adutoria_statement.setString(3, data[2]);
-                adutoria_statement.setString(4, data[3]);
-                adutoria_statement.setInt(5, Integer.parseInt(CurrentUser.getCurrentUser().get_id()); // id usuario
-                adutoria_statement.setInt(6, Integer.parseInt(data[5])); // id evento
-                adutoria_statement.setString(7, data[6]); // rol
-                adutoria_statement.setString(date);
-                
+                adutoria_statement.setInt(1, Integer.parseInt(idApp); // id app 
+                adutoria_statement.setInt(2, Integer.parseInt(evento); // evento
+                adutoria_statement.setString(3, Integer.parseInt(CurrentUser.getCurrentUser().getAlias()); // usuario actual
+                adutoria_statement.setString(4, usuario_modificado);
+                adutoria_statement.setString(5,CurrentUser.getRol()); // rol
+                adutoria_statement.setString(6,date);
                 
                 int resultado = adutoria_statement.executeUpdate();
              }
          }
+        } catch (SQLException ex){
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+        }
      }
 
      // eliminar una persona
