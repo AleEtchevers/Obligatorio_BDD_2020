@@ -39,7 +39,7 @@ public class Database {
     
     public boolean conectarse(String url,String user,String password) throws SQLException{
         if(this.connection_db == null){
-            if(conectarseDB(url,user,password)){
+            if (conectarseDB(url,user,password)) {
                 this.user = user;
                 this.url = url;
                 this.password = password;                 
@@ -69,7 +69,7 @@ public class Database {
         try(Connection con = DriverManager.getConnection(url, user, password)){
             this.connection_db = con;
             return true;
-        }catch(SQLException e){
+        } catch(SQLException e){
             return false;
         }
     }
@@ -80,10 +80,9 @@ public class Database {
         try (Connection con = DriverManager.getConnection(url, user, password)){
             String query_2 = "SELECT x.* FROM menurol x WHERE (x.user = ?) AND (x.idmenu in (SELECT x.idmenu FROM menu x WHERE x.idapp in (SELECT z.idapp FROM aplicacion z where z.nombreapp = ?)))";
             PreparedStatement statement = con.prepareStatement(query_2);
-            //"SELECT x.* FROM menurol x WHERE (x.user = ?) AND (x.idmenu in (SELECT x.idmenu FROM menu x WHERE x.idapp = ? and x.idmenu = ?))"
-            
-            statement.setString(1,username);           
-            statement.setString(2,appname);       
+        
+            statement.setString(1, username);           
+            statement.setString(2, appname);       
             
             ResultSet rs = statement.executeQuery(); 
             return rs;
@@ -105,9 +104,9 @@ public class Database {
             PreparedStatement statement = connection.prepareStatement(query);           
             ResultSet rs = statement.executeQuery();            
             while(rs.next()){
-                if(rs.getString("alias").compareTo(btn1)==0 && BCrypt.checkpw(btn2,rs.getString("password"))){
+                if(rs.getString("alias").compareTo(btn1)==0 && BCrypt.checkpw(btn2, rs.getString("password"))){
                     System.out.println("Datos correctos");
-                    app_select_screen after_login = new app_select_screen(btn1,this);
+                    app_select_screen after_login = new app_select_screen(btn1, this);
                     after_login.setVisible(true);
                     return true;
                 }
@@ -124,7 +123,7 @@ public class Database {
        try (Connection connection = DriverManager.getConnection(url,user,password)){
             String query_2 = "SELECT x.* FROM aplicacion x WHERE EXISTS (SELECT y.* FROM usuarioapp y WHERE y.idapp = x.idapp AND y.alias = ?)";
             PreparedStatement statement = connection.prepareStatement(query_2);
-            statement.setString(1,alias);
+            statement.setString(1, alias);
             ResultSet rs = statement.executeQuery();  
             return rs;
         }catch (SQLException e){
@@ -138,9 +137,9 @@ public class Database {
             String query_2 = "SELECT x.* FROM menurol x WHERE (x.user = ?) AND (x.idmenu in (SELECT x.idmenu FROM menu x WHERE x.idapp = ? and x.idmenu = ?))";
             PreparedStatement statement = connection.prepareStatement(query_2);
             
-            statement.setString(1,alias);
-            statement.setInt(2,idApp); 
-            statement.setInt(3,idMenu);            
+            statement.setString(1, alias);
+            statement.setInt(2, idApp); 
+            statement.setInt(3, idMenu);            
             ResultSet rs = statement.executeQuery();    
             return rs;
    
@@ -180,7 +179,7 @@ public class Database {
             System.out.println("Se conecto para buscar la ID del Menu");
             String query_2 = "SELECT idmenu FROM menu WHERE descripcionmenu=?";
             PreparedStatement statement = connection.prepareStatement(query_2);
-            statement.setString(1,nombreMenu);
+            statement.setString(1, nombreMenu);
             ResultSet rs = statement.executeQuery();       
             while(rs.next()){
                 return rs.getInt("idmenu");
@@ -201,7 +200,7 @@ public class Database {
             System.out.println("Se conecto para buscar la Descripcion del Menu");
             String query_desc = "SELECT descripcionmenu FROM menu WHERE idmenu=?";
             PreparedStatement statement = connection.prepareStatement(query_desc);
-            statement.setInt(1,idMenu);
+            statement.setInt(1, idMenu);
             ResultSet rs = statement.executeQuery();       
             while(rs.next()){
                 return rs.getString("descripcionmenu");
@@ -404,7 +403,7 @@ public class Database {
             //verificar si la persona existe
             statement_deletion.executeUpdate(deletion_query);
             // eliminar de la tabla MenuRol
-            elementosTabla = getElementosTabla("Persona"); // sacar los datos de la tabla
+            elementosTabla = getElementosTabla("persona"); // sacar los datos de la tabla
             actualizarAuditoria();
 
             return true;
@@ -415,7 +414,7 @@ public class Database {
         }
     }
 
-    //Hacer un get de elementos en una tabla X
+    //Hacer un get fila en una tabla X
     public String[] getElementosTabla(String nombreTabla){
          try(Connection connection = DriverManager.getConnection("jdbc:postgresql://192.168.56.102:5432/tests", "postgres", "bruno123")){
 
@@ -423,7 +422,7 @@ public class Database {
             String query_getValores = "SELECT * FROM " + nombreTabla);
             ResultSet resultado = statement.executeQuery(query_getValores);
             int cantidad_columnas = resultado.getColumnCount();
-            String [] fila = new String[cantidad_columnas];
+            String[] fila = new String[cantidad_columnas];
             return fila;
 
         } catch (SQLException exc) {
@@ -457,19 +456,4 @@ public class Database {
         return false;
         
     }
-}
-    
-    
-}
-    
-}
-    
-}
-    
-}
-    
-}
-    
-}
-    
 }
