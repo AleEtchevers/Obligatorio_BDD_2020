@@ -22,6 +22,7 @@ public class Database {
     private queries querie = new queries();
     private login_utils login = new login_utils();
     private register_utils register = new register_utils();
+    private CurrentUser currentUser;
     
     public Database(){
         if(this.connection_db == null){
@@ -60,5 +61,47 @@ public class Database {
         boolean intento = this.login.login_attempt(username, password, this);
         return intento;
     }
+    
+     // METODOS 
+
+    // actualizar auditoria
+     public void actualizarAuditoria(ResultSet resultado, String nombreTabla, int evento){
+         try{
+             if(resultado.next()){
+                String auditoria_query = "INSERT INTO auditoria (idApp,idEvento,Administrador,Alias,idUsuario,Evento,Rol,Fecha) VALUES(?,?,?,?,?,?,?,?);";
+                Date date = new Date(Calendar.getInstance().getTime().getTime());
+                PreparedStatement adutoria_statement = connection.prepareStatement(adutoria_query);
+
+                adutoria_statement.setInt(1, Integer.parseInt(data[0]));
+                adutoria_statement.setInt(2, Integer.parseInt(data[1]));
+                adutoria_statement.setString(3, data[2]);
+                adutoria_statement.setString(4, data[3]);
+                adutoria_statement.setInt(5, Integer.parseInt(CurrentUser.getCurrentUser().get_id()); // id usuario
+                adutoria_statement.setInt(6, Integer.parseInt(data[5])); // id evento
+                adutoria_statement.setString(7, data[6]); // rol
+                adutoria_statement.setString(date);
+                
+                
+                int resultado = adutoria_statement.executeUpdate();
+             }
+         }
+     }
+
+     // eliminar una persona
+     public ResultSet eliminarPersona(String nombreTabla, String ciPersona){
+        try(Connection connection = DriverManager.getConnection("jdbc:postgresql://192.168.56.102:5432/tests", "postgres", "bruno123")){
+            statement = connection.createStatement(ResultSet.CONCUR_UPDATABLE, ResultSet.TYPE_FORWARD_ONLY);
+            String query_update = "UPDATE "+ nombreTabla + " SET estado = false WHERE ci = " + ciPersona;
+            statement.executeUpdate(query_update);
+            ResultSet resultado = statement.getGeneratedKeys();
+            // aca llamar a metodo auditoria para registrar el evento de eliminar una persona
+
+        }
+        catch (SQLException ex) {
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
     
 }

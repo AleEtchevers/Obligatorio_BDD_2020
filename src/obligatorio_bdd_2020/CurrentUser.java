@@ -18,7 +18,7 @@ public class CurrentUser {
         return usuario;
     }
 
-    public int get_ID(){
+    public int get_id(){
         return this.id;
     }
 
