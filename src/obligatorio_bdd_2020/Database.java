@@ -5,6 +5,7 @@
  */
 package obligatorio_bdd_2020;
 
+import queries; 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -19,14 +20,14 @@ import utils.register_utils;
 public class Database {
     
     private Connection connection_db = null;
-    private queries querie = new queries();
+    private queries queries = new queries();
     private login_utils login = new login_utils();
     private register_utils register = new register_utils();
-    private CurrentUser currentUser;
+    private CurrentUser currentUser; // vamos a tener que ver esto 
     
     public Database(){
         if(this.connection_db == null){
-            database_login_page db = new database_login_page(connection_db,this);  
+            database_login_page db = new database_login_page(connection_db, this);  
             db.setVisible(true);
         }
     }
@@ -37,7 +38,7 @@ public class Database {
     
     public boolean conectarse(String url,String user,String password) throws SQLException{
         if(this.connection_db == null){
-            if(conectarseDB(url,user,password)){
+            if(conectarseDB(url, user, password)){
                 return true;
             }else{
                 return false;
@@ -52,12 +53,12 @@ public class Database {
         try(Connection con = DriverManager.getConnection(url, user, password)){
             this.connection_db = con;
             return true;
-        }catch(SQLException e){
+        } catch(SQLException e){
             return false;
         }
     }
     
-    public boolean login(String username,String password) throws SQLException{
+    public boolean login(String username, String password) throws SQLException{
         boolean intento = this.login.login_attempt(username, password, this);
         return intento;
     }
@@ -69,7 +70,7 @@ public class Database {
          try{
              if(resultado.next()){
                 String auditoria_query = "INSERT INTO auditoria (id_App,id_Evento,Usuario_Actual,Usuario_Modificado,Rol,Fecha) VALUES(?,?,?,?,?,?);";
-                Date date = new Date(Calendar.getInstance().getTime().getTime());
+                Date date = new Date(Calendar.getInstance().getTime());
                 PreparedStatement adutoria_statement = connection.prepareStatement(adutoria_query);
 
                 adutoria_statement.setInt(1, Integer.parseInt(idApp); // id app 
@@ -87,21 +88,61 @@ public class Database {
         }
      }
 
-     // eliminar una persona
-     public ResultSet eliminarPersona(String nombreTabla, String ciPersona){
+
+     public ResultSet deshabilitarUsuario(String alias){
         try(Connection connection = DriverManager.getConnection("jdbc:postgresql://192.168.56.102:5432/tests", "postgres", "bruno123")){
             statement = connection.createStatement(ResultSet.CONCUR_UPDATABLE, ResultSet.TYPE_FORWARD_ONLY);
-            String query_update = "UPDATE "+ nombreTabla + " SET estado = false WHERE ci = " + ciPersona;
+            String query_update = "UPDATE usuario SET estado = false WHERE alias = " + alias;
             statement.executeUpdate(query_update);
             ResultSet resultado = statement.getGeneratedKeys();
-            // aca llamar a metodo auditoria para registrar el evento de eliminar una persona
-
+           
         }
+        
         catch (SQLException ex) {
             Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
+        
+    public static boolean eliminarPersona(Int cedula) {
+        try(Connection connection = DriverManager.getConnection("jdbc:postgresql://192.168.56.102:5432/tests", "postgres", "bruno123")) {
+        Statement statement_exists = connection.createStatement(ResultSet.CONCUR_UPDATABLE, ResultSet.TYPE_FORWARD_ONLY);
+        Statement statement_deletion = connection.createStatement(ResultSet.CONCUR_UPDATABLE, ResultSet.TYPE_FORWARD_ONLY);
+        
+        String person_exists_query = "SELECT * FROM Persona WHERE cedula = " + cedula;
+        String deletion_query = "DELETE from Persona WHERE cedula = " + cedula;
 
+        if statement_exists.executeUpdate(person_exists_query) {
+            // eliminar de la tabla Persona
+            statement_deletion.executeUpdate(deletion_query);
+            // eliminar de la tabla MenuRol
+
+            return true;
+            }
+        return false;
+        } catch (SQLException exc) {
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, exc);
+        }
+    }
+
+    //Hacer un get de elementos en una tabla X
+     public ResultSet getElementosTabla(String nombreTabla){
+         try(Connection connection = DriverManager.getConnection("jdbc:postgresql://192.168.56.102:5432/tests", "postgres", "bruno123")){
+
+            Statement statement = connection.createStatement();
+            String query_getValores = "SELECT count(*) FROM " + nombreTabla);
+            ResultSet resultado = statement.executeQuery(query_getValores);
+            return resultado;
+
+        } catch (SQLException exc) {
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, exc);
+        }
+        return null;
+    }
+    
+}
+    
+    
+}
     
 }

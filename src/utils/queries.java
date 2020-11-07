@@ -17,7 +17,7 @@ import java.util.HashSet;
  *
  * @author bruno
  */
-public class queries {
+public class Queries {
     
     private String FAILURE = "Connection failure."
 
@@ -199,4 +199,3 @@ public class queries {
         System.out.println(FAILURE); 
     }
     
-}
