@@ -392,21 +392,19 @@ public class Database {
         return null;
     }
         
-    public static boolean eliminarPersona(Int cedula) {
+    public static boolean eliminarPersona(int cedula) {
         try(Connection connection = DriverManager.getConnection("jdbc:postgresql://192.168.56.102:5432/tests", "postgres", "bruno123")) {
-        Statement statement_exists = connection.createStatement(ResultSet.CONCUR_UPDATABLE, ResultSet.TYPE_FORWARD_ONLY);
         Statement statement_deletion = connection.createStatement(ResultSet.CONCUR_UPDATABLE, ResultSet.TYPE_FORWARD_ONLY);
         
-        String person_exists_query = "SELECT * FROM Persona WHERE cedula = " + cedula;
         String deletion_query = "DELETE from Persona WHERE cedula = " + cedula;
         ResultSet elementosTabla;
 
-        if statement_exists.executeUpdate(person_exists_query) {
+        if personaExiste(cedula) {
             // eliminar de la tabla Persona
             //verificar si la persona existe
             statement_deletion.executeUpdate(deletion_query);
             // eliminar de la tabla MenuRol
-            elementosTabla = getElementosTabla("Persona");
+            elementosTabla = getElementosTabla("Persona"); // sacar los datos de la tabla
             actualizarAuditoria();
 
             return true;
@@ -423,13 +421,10 @@ public class Database {
 
             Statement statement = connection.createStatement();
             String query_getValores = "SELECT * FROM " + nombreTabla);
-            //  string con los parametros de la tabla
-            String[] elementos; // lo sigo desp
-
-            
             ResultSet resultado = statement.executeQuery(query_getValores);
-            
-            return elementos;
+            int cantidad_columnas = resultado.getColumnCount();
+            String [] fila = new String[cantidad_columnas];
+            return fila;
 
         } catch (SQLException exc) {
             Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, exc);
@@ -438,7 +433,6 @@ public class Database {
     }
     
     // buscar persona en tabla personas
-
     public ResultSet buscarPersona(int cedula){
         try(Connection connection = DriverManager.getConnection("jdbc:postgresql://192.168.56.102:5432/tests", "postgres", "bruno123")){
             Statement statement = connection.createStatement(ResultSet.CONCUR_UPDATABLE, ResultSet.TYPE_FORWARD_ONLY);
@@ -453,11 +447,10 @@ public class Database {
     }
 
     //Verificar si la persona existe
-
-    public boolean personaExiste(String cedula){
+    public boolean personaExiste(int cedula){
         ResultSet persona = buscarPersona(cedula);
         try {
-            return person.first();
+            return persona.first();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -466,6 +459,10 @@ public class Database {
     }
 }
     
+    
+}
+    
+}
     
 }
     
