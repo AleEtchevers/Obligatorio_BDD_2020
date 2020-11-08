@@ -264,12 +264,12 @@ public class Database {
     public int getIdUsuario(String nombreUsuario){
         try (Connection connection = DriverManager.getConnection(url,user,password)){
             System.out.println("Se conecto para buscar la Descripcion del Menu");
-            String query_desc = "SELECT id FROM rol WHERE nombrerol=?";
+            String query_desc = "SELECT ci FROM usuario WHERE alias=?";
             PreparedStatement statement = connection.prepareStatement(query_desc);
-            statement.setString(1,nombreRol);
+            statement.setString(1,nombreUsuario);
             ResultSet rs = statement.executeQuery();       
             while(rs.next()){
-                return rs.getInt("idrol");
+                return rs.getInt("ci");
             }            
         }catch (SQLException e){
             System.out.println("Connection failure.");           
@@ -544,46 +544,41 @@ public class Database {
          return maximo;
     }
     
-    public boolean executeUpdateGenericSQL(String consultaSQL) throws SQLException{
-        int rows = 0;
-        int columnsNumber;
-        Statement sentencia;
-
-         try {
-            C Class.forName("org.postgresql.Driver");
-            Connection c = DriverManager.getConnection(url,user,password);
-            sentencia = c.createStatement();
-            sentencia.executeUpdate(consultaSQL);
-
-         } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-         }
-         sentencia.close();
-         return true;
-    }
-    public void crearAdutoria(String idAdministrador, String aliasUsuario, String rol,String nomnbreApp){
+    
+    
+    public void crearAdutoriaEvento(String administrador,String tipoevento, String aliasUsuario, String rol,String nomnbreApp,String descripcion){
         try(Connection c = DriverManager.getConnection(url,user,password)){
-            String query_adutoria = "INSERT INTO public.auditorias (idsuceso, idapp, fechahora, usuarioinvolucrado, admincrea,adminautoriza,tipodeevento,nombrerol) "+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";           
-            PreparedStatement stmt = c.prepareStatement(query);
+            String query_evento= "INSERT INTO public.evento (idevento, tipodeevento, quienlocreo, descripcion) "+ "VALUES (?, ?, ?, ?);"; 
+            PreparedStatement stmt = c.prepareStatement(query_evento); 
+            String maximoEvento = maxGenericSQL("idevento","public.evento");
+            int idevento = Integer.parseInt(maximoEvento)+ 1;
+
+            stmt.setInt(1, idevento);
+            stmt.setString(2,tipodeevento);
+            stmt.setString(3,aliasUsuario);
+            stmt.setString(4,descripcion);
+            ResultSet resultadoEvento = stmt.executeQuery();
+
+            String query_adutoria = "INSERT INTO public.auditorias (idsuceso, idapp, fechahora, usuarioinvolucrado, admincrea,adminautoriza,idevento,nombrerol) "+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";           
+            PreparedStatement stmt1 = c.prepareStatement(query_adutoria); 
+
             String maximo = maxGenericSQL("idsuceso","public.auditorias");
             int idsuceso = Integer.parseInt(maximo)+ 1;
-            stmt.setInt(1, idsuceso);
-            stmt.setInt(2,this.getIdApp(nomnbreApp));
-            stmt.setString(3, "current_timestamp");
-            stmt.setString(4,aliasUsuario);
-            stmt.setString(5,idAdministrador);
-            
+            stmt1.setInt(1, idsuceso);
+            stmt1.setInt(2,this.getIdApp(nomnbreApp));
+            stmt1.setString(3, "current_timestamp");
+            stmt1.setString(4,aliasUsuario);
+            stmt1.setString(5,administrador);
+            stmt1.setString(6,"NULL");
+            stmt1.setInt(7,idevento);
+            stmt1.setString(8,rol);
 
+            ResultSet resultado = stmt1.executeQuery();
+            resultadoEvento.close();
+            resultado.close();
 
-            stmt.setInt(1, idmenu);
-            stmt.setString(2,usuarioTarget);           
-            ResultSet rs = stmt.executeQuery();
-            
-            return rs.next();
-            
         }catch(SQLException e){
-            return false;
+            System.out.println("Error: "+ e);  
             
         } 
     }
