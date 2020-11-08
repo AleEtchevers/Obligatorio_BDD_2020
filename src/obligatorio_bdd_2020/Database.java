@@ -257,6 +257,26 @@ public class Database {
         return -1;        
     }
     /**
+     * Obtiene ID del Usuario segun su nombre
+     * @param nombreRol
+     * @return 
+     */    
+    public int getIdUsuario(String nombreUsuario){
+        try (Connection connection = DriverManager.getConnection(url,user,password)){
+            System.out.println("Se conecto para buscar la Descripcion del Menu");
+            String query_desc = "SELECT id FROM rol WHERE nombrerol=?";
+            PreparedStatement statement = connection.prepareStatement(query_desc);
+            statement.setString(1,nombreRol);
+            ResultSet rs = statement.executeQuery();       
+            while(rs.next()){
+                return rs.getInt("idrol");
+            }            
+        }catch (SQLException e){
+            System.out.println("Connection failure.");           
+        }
+        return -1;        
+    }
+    /**
      * Devuelve los permisos que tiene un Usuario en un Menu con un Rol especifico.
      * Ej: "Editar","Ver","Buscar" y "Crear"
      * @param alias
@@ -489,7 +509,7 @@ public class Database {
         }         
     }
 
-    public String maxGenericSQL(String atributo, String tabla) throws SQLException{
+    public String maxGenericSQL(String atributo, String nombreTabla) throws SQLException{
         String maximo="0";
         String consultaSQL;
         ResultSet resultado;
@@ -497,14 +517,14 @@ public class Database {
         
         int rows = 0;
         int columnsNumber;
-          Statement sentencia;
+        Statement sentencia;
          try {
             
             Class.forName("org.postgresql.Driver");
             Connection c = DriverManager.getConnection(url,user,password);
             sentencia = c.createStatement();
           
-            consultaSQL="SELECT "+atributo+" FROM postgres.datosusuarios."+tabla+" WHERE "+atributo+" = ( SELECT MAX("+atributo+") FROM postgres.datosusuarios."+tabla+");";
+            consultaSQL="SELECT "+atributo+" FROM "+nombreTabla+" WHERE "+atributo+" = ( SELECT MAX("+atributo+") FROM "+nombreTabla+");";
             resultado=sentencia.executeQuery(consultaSQL);
             rsmd = resultado.getMetaData();
             columnsNumber=rsmd.getColumnCount();
@@ -522,5 +542,49 @@ public class Database {
          resultado.close();
          sentencia.close();
          return maximo;
+    }
+    
+    public boolean executeUpdateGenericSQL(String consultaSQL) throws SQLException{
+        int rows = 0;
+        int columnsNumber;
+        Statement sentencia;
+
+         try {
+            C Class.forName("org.postgresql.Driver");
+            Connection c = DriverManager.getConnection(url,user,password);
+            sentencia = c.createStatement();
+            sentencia.executeUpdate(consultaSQL);
+
+         } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+         }
+         sentencia.close();
+         return true;
+    }
+    public void crearAdutoria(String idAdministrador, String aliasUsuario, String rol,String nomnbreApp){
+        try(Connection c = DriverManager.getConnection(url,user,password)){
+            String query_adutoria = "INSERT INTO public.auditorias (idsuceso, idapp, fechahora, usuarioinvolucrado, admincrea,adminautoriza,tipodeevento,nombrerol) "+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";           
+            PreparedStatement stmt = c.prepareStatement(query);
+            String maximo = maxGenericSQL("idsuceso","public.auditorias");
+            int idsuceso = Integer.parseInt(maximo)+ 1;
+            stmt.setInt(1, idsuceso);
+            stmt.setInt(2,this.getIdApp(nomnbreApp));
+            stmt.setString(3, "current_timestamp");
+            stmt.setString(4,aliasUsuario);
+            stmt.setString(5,idAdministrador);
+            
+
+
+            stmt.setInt(1, idmenu);
+            stmt.setString(2,usuarioTarget);           
+            ResultSet rs = stmt.executeQuery();
+            
+            return rs.next();
+            
+        }catch(SQLException e){
+            return false;
+            
+        } 
     }
 }
