@@ -24,6 +24,4 @@ import java.util.Locale;
  */
 public class register_utils {
 
-    
-
 }
