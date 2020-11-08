@@ -124,6 +124,40 @@ public class Database {
         return false;
     }
     
+    public void registroUsuarioPersona(String[] data){
+         
+        String register_query = "INSERT INTO PERSONA(ci,nombre,apellido,direccion,telefono,sexo,fecha_nac) VALUES(?,?,?,?,?,?,?);";
+        PreparedStatement register_statement = connection.prepareStatement(register_query);
+        register_statement.setInt(1, Integer.parseInt(data[0]));
+        register_statement.setString(2, data[1]);
+        register_statement.setString(3, data[2]);
+        register_statement.setString(4, data[3]);
+        register_statement.setInt(5, Integer.parseInt(data[4]));
+        register_statement.setString(6, data[5]);            
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        Date date = null;
+        try {
+            date = (Date) dateFormat.parse(data[6]);
+        }catch(ParseException e){
+        }           
+        register_statement.setDate(7,date); 
+        
+        int resultado = register_statement.executeUpdate();
+        
+               
+        String user_query = "INSERT INTO usuario(alias,ci,quienlocreo,estado,password) VALUES(?,?,?,?,?);";
+        PreparedStatement user_statement = connection.prepareStatement(user_query);
+        user_statement.setString(1,data[7]);
+        user_statement.setInt(2,Integer.parseInt(data[0]));
+        user_statement.setString(3,"none");
+        user_statement.setString(4,"En Espera");
+        user_statement.setString(5,BCrypt.hashpw(data[8],BCrypt.gensalt()));
+        int user_query_result = user_statement.executeUpdate();
+        CurrentUser datos = CurrentUser.getCurrentUser();
+        
+
+    }
+    
     public ResultSet getAppsDeUsuario(String alias){
        try (Connection connection = DriverManager.getConnection(url,user,password)){
             String query_2 = "SELECT x.* FROM aplicacion x WHERE EXISTS (SELECT y.* FROM usuarioapp y WHERE y.idapp = x.idapp AND y.alias = ?)";
